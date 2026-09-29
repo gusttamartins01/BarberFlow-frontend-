@@ -19,6 +19,11 @@ export const catalogPhotos: Record<
 		]
 	},
 	combo: {
-		1: ['/combos/combo1.png']
+		1: ['/combos/combo1.png'],
+		2: ['/combos/combo1.png'],
+		3: ['/combos/combo1.png'],
+		4: ['/combos/combo1.png'],
+		5: ['/combos/combo1.png'],
+		6: ['/combos/combo1.png']
 	}
 };

@@ -71,7 +71,7 @@ export default function Combos() {
 									type="combo"
 									id={combo.id}
 									name={combo.name}
-									maxPhotos={5}
+									maxPhotos={6}
 								/>
 								<div className="flex flex-1 flex-col p-6 sm:p-8">
 									<div className="mb-6 flex items-start justify-between gap-4">

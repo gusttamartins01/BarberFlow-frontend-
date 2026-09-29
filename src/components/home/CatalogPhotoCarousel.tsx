@@ -6,7 +6,7 @@ type CatalogPhotoCarouselProps = {
 	type: CatalogPhotoType;
 	id: number;
 	name: string;
-	maxPhotos: 2 | 5;
+	maxPhotos: 2 | 6;
 };
 
 export default function CatalogPhotoCarousel({

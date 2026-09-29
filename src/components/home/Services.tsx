@@ -108,7 +108,7 @@ export default function Services() {
 									type="service"
 									id={service.id}
 									name={service.name}
-									maxPhotos={5}
+									maxPhotos={6}
 								/>
 								<div className="flex flex-1 flex-col p-6 sm:p-7 lg:p-9">
 									<div className="mb-7 flex items-center justify-between gap-4">
