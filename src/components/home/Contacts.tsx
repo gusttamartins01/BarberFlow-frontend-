@@ -1,7 +1,7 @@
 import { ArrowUpRight, CalendarDays, MapPin } from 'lucide-react';
 import Logo from '../../assets/logo.png';
 
-export default function Footer() {
+export default function Contacts() {
 	return (
 		<footer>
 			<section
@@ -32,7 +32,7 @@ export default function Footer() {
 					<div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
 						<a
 							href="#agendamentos"
-							className="inline-flex min-h-12 items-center justify-center gap-3 bg-amber-600 px-6 text-sm font-semibold text-white transition-colors hover:bg-amber-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400"
+							className="inline-flex min-h-12 items-center justify-center gap-3 bg-amber-500 px-6 text-sm font-semibold text-[#111820] transition-colors hover:bg-amber-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400"
 						>
 							<CalendarDays size={18} aria-hidden="true" />
 							Agendar horário
@@ -41,7 +41,7 @@ export default function Footer() {
 							href="https://www.google.com/maps/search/?api=1&query=Barbearia+Senhor+Emidio"
 							target="_blank"
 							rel="noreferrer"
-							className="inline-flex min-h-12 items-center justify-center gap-3 border border-white/20 px-6 text-sm font-semibold text-stone-100 transition-colors hover:border-amber-500 hover:text-amber-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400"
+							className="inline-flex min-h-12 items-center justify-center gap-3 border border-neutral-700 px-6 text-sm font-semibold text-stone-100 transition-colors hover:border-amber-500 hover:text-amber-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400"
 						>
 							<MapPin size={18} aria-hidden="true" />
 							Encontrar no mapa <ArrowUpRight size={16} aria-hidden="true" />
@@ -50,7 +50,7 @@ export default function Footer() {
 				</div>
 			</section>
 
-			<div className="border-t border-white/10 bg-black px-5 py-5 sm:px-8 lg:px-12">
+			<div className="border-t border-neutral-800 bg-black px-5 py-5 sm:px-8 lg:px-12">
 				<div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 sm:flex-row">
 					<a
 						href="#inicio"

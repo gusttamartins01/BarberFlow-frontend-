@@ -1,55 +1,4 @@
-export type ApiService = {
-	id: number;
-	name: string;
-	description?: string | null;
-	price: number | string;
-	duration: number;
-};
-
-export type ApiBarber = {
-	id: number;
-	name: string;
-};
-
-export type ApiCombo = {
-	id: number;
-	name: string;
-	description: string;
-	price: number | string;
-	services: ApiService[];
-};
-
-export type ApiBusinessHours = {
-	id: number;
-	dayOfWeek: number;
-	openTime: string;
-	closeTime: string;
-	isOpen: boolean;
-};
-
-export type ApiAppointment = {
-	id: number;
-	customerId: number;
-	barberId: number;
-	serviceId: number;
-	date: string;
-	startTime: string;
-	endTime: string;
-	status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
-	totalPrice: number | string;
-	notes?: string | null;
-};
-
-export type ApiCustomer = {
-	id: number;
-	name: string;
-	phone: string;
-};
-
-type ApiErrorResponse = {
-	message?: string;
-	fields?: Array<{ field: string; message: string }>;
-};
+import type { ApiErrorResponse } from '../types/api';
 
 const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL || '/api').replace(
 	/\/$/,
@@ -73,7 +22,7 @@ export async function apiRequest<T>(
 		});
 	} catch {
 		throw new Error(
-			'Não foi possível conectar à API. Confira se o backend está em execução.'
+			'Não foi possível carregar as informações. Tente novamente em instantes.'
 		);
 	}
 
@@ -90,7 +39,8 @@ export async function apiRequest<T>(
 		throw new Error(
 			fieldMessages?.length
 				? fieldMessages.join(' ')
-				: (errorBody?.message ?? `A API respondeu com erro ${response.status}.`)
+				: (errorBody?.message ??
+						`Não foi possível concluir a solicitação (${response.status}).`)
 		);
 	}
 

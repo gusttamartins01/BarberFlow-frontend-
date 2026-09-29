@@ -1,37 +1,43 @@
-import { useEffect, useState } from 'react';
-import { type ApiService, apiRequest } from '../lib/api';
+import { useCallback, useEffect, useState } from 'react';
+import { apiRequest } from '../../lib/api';
+import type { ApiService } from '../../types/api';
+import CatalogPhotoCarousel from './CatalogPhotoCarousel';
 
 export default function Services() {
 	const [services, setServices] = useState<ApiService[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState('');
-	const [reload, setReload] = useState(0);
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: reload retriggers the request after a retry.
+	const loadServices = useCallback(
+		(signal?: AbortSignal) =>
+			apiRequest<ApiService[]>('/services', { signal })
+				.then((items) => {
+					if (!signal?.aborted) {
+						setServices(items);
+						setError('');
+					}
+				})
+				.catch((requestError: unknown) => {
+					if (!signal?.aborted) {
+						setError(
+							requestError instanceof Error
+								? requestError.message
+								: 'Não foi possível carregar os serviços.'
+						);
+					}
+				})
+				.finally(() => {
+					if (!signal?.aborted) setLoading(false);
+				}),
+		[]
+	);
+
 	useEffect(() => {
-		let active = true;
+		const controller = new AbortController();
+		void loadServices(controller.signal);
 
-		apiRequest<ApiService[]>('/services')
-			.then((items) => {
-				if (active) setServices(items);
-			})
-			.catch((requestError: unknown) => {
-				if (active) {
-					setError(
-						requestError instanceof Error
-							? requestError.message
-							: 'Não foi possível carregar os serviços.'
-					);
-				}
-			})
-			.finally(() => {
-				if (active) setLoading(false);
-			});
-
-		return () => {
-			active = false;
-		};
-	}, [reload]);
+		return () => controller.abort();
+	}, [loadServices]);
 
 	const formatPrice = (price: ApiService['price']) =>
 		new Intl.NumberFormat('pt-BR', {
@@ -80,7 +86,7 @@ export default function Services() {
 							onClick={() => {
 								setError('');
 								setLoading(true);
-								setReload((value) => value + 1);
+								void loadServices();
 							}}
 							type="button"
 						>
@@ -96,22 +102,30 @@ export default function Services() {
 						{services.map((service, index) => (
 							<article
 								key={service.id}
-								className="flex min-h-52 flex-col bg-neutral-950 p-6 sm:p-7 lg:p-9"
+								className="flex min-h-52 flex-col overflow-hidden bg-neutral-950"
 							>
-								<div className="mb-7 flex items-center justify-between gap-4">
-									<span className="font-serif text-sm text-neutral-500">
-										{String(index + 1).padStart(2, '0')}
-									</span>
-									<span className="shrink-0 text-sm font-semibold text-amber-500">
-										{formatPrice(service.price)}
-									</span>
+								<CatalogPhotoCarousel
+									type="service"
+									id={service.id}
+									name={service.name}
+									maxPhotos={5}
+								/>
+								<div className="flex flex-1 flex-col p-6 sm:p-7 lg:p-9">
+									<div className="mb-7 flex items-center justify-between gap-4">
+										<span className="font-serif text-sm text-neutral-500">
+											{String(index + 1).padStart(2, '0')}
+										</span>
+										<span className="shrink-0 text-sm font-semibold text-amber-500">
+											{formatPrice(service.price)}
+										</span>
+									</div>
+									<h3 className="mb-3 font-serif text-xl font-semibold leading-snug text-stone-100">
+										{service.name}
+									</h3>
+									<p className="text-sm leading-6 text-neutral-400">
+										{service.description || `${service.duration} minutos`}
+									</p>
 								</div>
-								<h3 className="mb-3 font-serif text-xl font-semibold leading-snug text-stone-100">
-									{service.name}
-								</h3>
-								<p className="text-sm leading-6 text-neutral-400">
-									{service.description || `${service.duration} minutos`}
-								</p>
 							</article>
 						))}
 					</div>

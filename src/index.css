@@ -1,1 +1,23 @@
 @import "tailwindcss";
+
+html {
+	scroll-behavior: smooth;
+	color-scheme: dark;
+}
+
+body {
+	margin: 0;
+	background: #090909;
+	color: #e7e5e4;
+}
+
+::selection {
+	background: #d97706;
+	color: #111820;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+}

@@ -1,12 +1,7 @@
-import { type FormEvent, useEffect, useState } from 'react';
-import {
-	type ApiAppointment,
-	type ApiBarber,
-	type ApiBusinessHours,
-	type ApiCustomer,
-	type ApiService,
-	apiRequest
-} from '../lib/api';
+import { type FormEvent, useState } from 'react';
+import { useSchedulingData } from '../../hooks/useSchedulingData';
+import { apiRequest } from '../../lib/api';
+import type { ApiAppointment, ApiCustomer, ApiService } from '../../types/api';
 
 const fieldClassName =
 	'min-h-13 w-full border border-neutral-700 bg-neutral-950 px-4 text-sm text-stone-100 outline-none transition-colors placeholder:text-neutral-500 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 disabled:cursor-not-allowed disabled:opacity-50';
@@ -38,17 +33,16 @@ function priceLabel(price: ApiService['price']) {
 	}).format(Number(price));
 }
 
-function errorMessage(error: unknown) {
-	return error instanceof Error ? error.message : 'Ocorreu um erro inesperado.';
-}
-
-export default function SchedulingPage() {
-	const [services, setServices] = useState<ApiService[]>([]);
-	const [barbers, setBarbers] = useState<ApiBarber[]>([]);
-	const [hours, setHours] = useState<ApiBusinessHours[]>([]);
-	const [appointments, setAppointments] = useState<ApiAppointment[]>([]);
-	const [loading, setLoading] = useState(true);
-	const [loadError, setLoadError] = useState('');
+export default function Scheduling() {
+	const {
+		services,
+		barbers,
+		hours,
+		appointments,
+		setAppointments,
+		loading,
+		loadError
+	} = useSchedulingData();
 	const [submitting, setSubmitting] = useState(false);
 	const [serviceId, setServiceId] = useState('');
 	const [barberId, setBarberId] = useState('');
@@ -59,33 +53,6 @@ export default function SchedulingPage() {
 		success: boolean;
 		message: string;
 	} | null>(null);
-
-	useEffect(() => {
-		let active = true;
-		Promise.all([
-			apiRequest<ApiService[]>('/services'),
-			apiRequest<ApiBarber[]>('/barbers'),
-			apiRequest<ApiBusinessHours[]>('/business-hours'),
-			apiRequest<ApiAppointment[]>('/appointments')
-		])
-			.then(([serviceItems, barberItems, businessHours, bookingItems]) => {
-				if (!active) return;
-				setServices(serviceItems);
-				setBarbers(barberItems);
-				setHours(businessHours);
-				setAppointments(bookingItems);
-			})
-			.catch((error: unknown) => {
-				if (active) setLoadError(errorMessage(error));
-			})
-			.finally(() => {
-				if (active) setLoading(false);
-			});
-
-		return () => {
-			active = false;
-		};
-	}, []);
 
 	const service = services.find((item) => item.id === Number(serviceId));
 	const businessHours = date
@@ -210,14 +177,24 @@ export default function SchedulingPage() {
 			setDate('');
 			setStartTime('');
 		} catch (error) {
-			setFeedback({ success: false, message: errorMessage(error) });
+			setFeedback({
+				success: false,
+				message:
+					error instanceof Error
+						? error.message
+						: 'Não foi possível concluir a reserva.'
+			});
 		} finally {
 			setSubmitting(false);
 		}
 	};
 
 	return (
-		<main className="min-h-svh bg-neutral-950 px-5 pb-16 pt-28 sm:px-8 sm:pt-32 lg:px-12 lg:pt-36">
+		<section
+			id="agendamentos"
+			aria-labelledby="booking-title"
+			className="scroll-mt-20 bg-neutral-900 px-5 py-16 sm:px-8 sm:py-20 lg:scroll-mt-24 lg:px-12 lg:py-24"
+		>
 			<div className="mx-auto max-w-4xl">
 				<header className="mb-10 sm:mb-14">
 					<p className="mb-6 flex items-center gap-3 text-xs font-medium uppercase tracking-[0.2em] text-amber-500">
@@ -227,9 +204,12 @@ export default function SchedulingPage() {
 						/>
 						Agendamento
 					</p>
-					<h1 className="font-serif text-4xl font-semibold leading-tight text-stone-100 sm:text-5xl">
+					<h2
+						id="booking-title"
+						className="font-serif text-4xl font-semibold leading-tight text-stone-100 sm:text-5xl"
+					>
 						Reserve seu horário.
-					</h1>
+					</h2>
 					<p className="mt-5 max-w-2xl text-sm leading-6 text-neutral-400 sm:text-base sm:leading-7">
 						Preencha o formulário para solicitar sua reserva.
 					</p>
@@ -240,7 +220,7 @@ export default function SchedulingPage() {
 						className="mb-6 border border-red-900/70 bg-red-950/30 p-4 text-sm leading-6 text-red-200"
 						role="alert"
 					>
-						Não foi possível carregar os dados da API: {loadError}
+						Não foi possível carregar as informações: {loadError}
 					</p>
 				)}
 
@@ -412,7 +392,7 @@ export default function SchedulingPage() {
 					</div>
 					<div className="flex flex-col items-start gap-4 sm:col-span-2 sm:flex-row sm:items-center">
 						<button
-							className="inline-flex min-h-13 w-full items-center justify-center bg-amber-600 px-8 text-sm font-semibold uppercase tracking-[0.12em] text-white transition-colors hover:bg-amber-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:min-w-60"
+							className="inline-flex min-h-13 w-full items-center justify-center bg-amber-500 px-8 text-sm font-semibold uppercase tracking-[0.12em] text-[#111820] transition-colors hover:bg-amber-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:min-w-60"
 							disabled={
 								loading ||
 								Boolean(loadError) ||
@@ -435,6 +415,6 @@ export default function SchedulingPage() {
 					</div>
 				</form>
 			</div>
-		</main>
+		</section>
 	);
 }
