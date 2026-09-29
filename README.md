@@ -1,75 +1,20 @@
-# React + TypeScript + Vite
+# BarberFlow Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend React, TypeScript e Vite para o BarberFlow.
 
-Currently, two official plugins are available:
+## Integração com a API
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Copie `.env.example` para `.env`. Por padrão, o Vite encaminha as chamadas `/api` para `http://localhost:3333`, evitando CORS durante o desenvolvimento. Para usar outra instância local, ajuste `VITE_API_PROXY_TARGET`.
 
-## React Compiler
+Inicie o backend com `PORT=3333`, `DATABASE_URL` configurada para o PostgreSQL e `LOG_LEVEL=info` no `.env` do backend. Depois, inicie este frontend com `npm run dev`. A `DATABASE_URL` deve permanecer apenas no backend.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+As telas consomem `GET /services`, `GET /barbers`, `GET /business-hours` e `GET /appointments`. Ao solicitar uma reserva, o frontend cria o cliente em `POST /customers` e então o agendamento em `POST /appointments`.
 
-## Expanding the ESLint configuration
+Em produção, configure `VITE_API_BASE_URL` para uma URL acessível pelo navegador e disponibilize a API na mesma origem por um reverse proxy, ou habilite CORS no backend para a origem do frontend. O proxy definido no Vite vale apenas para desenvolvimento.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Scripts
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
-```
-
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
-```
+- `npm run dev`: servidor de desenvolvimento.
+- `npm run build`: validação TypeScript e build de produção.
+- `npm run lint`: ESLint.
+- `npm run preview`: pré-visualização do build.
