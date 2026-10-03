@@ -1,10 +1,19 @@
-import { Scissors } from 'lucide-react';
+import { ArrowUpRight, Scissors } from 'lucide-react';
+import { FaInstagram } from 'react-icons/fa';
+import { barberProfiles, defaultBarbers } from '../../data/defaultCatalog';
 import { usePublicList } from '../../hooks/usePublicList';
 import type { ApiBarber } from '../../types/api';
 import CatalogPhotoCarousel from './CatalogPhotoCarousel';
 
-export default function Barbers() {
-	const { items, loading, error, retry } = usePublicList<ApiBarber>('/barbers');
+type BarbersProps = {
+	onScheduleBarber: (barberId: number) => void;
+};
+
+export default function Barbers({ onScheduleBarber }: BarbersProps) {
+	const { items, loading, error, retry } = usePublicList<ApiBarber>(
+		'/barbers',
+		defaultBarbers
+	);
 
 	return (
 		<section
@@ -56,11 +65,11 @@ export default function Barbers() {
 						As informações da equipe estarão disponíveis em breve.
 					</p>
 				) : (
-					<div className="grid gap-px bg-white/10 sm:grid-cols-2 xl:grid-cols-4">
+					<div className="mx-auto grid max-w-5xl gap-4 sm:grid-cols-2">
 						{items.map((barber, index) => (
 							<article
 								key={barber.id}
-								className="group min-h-64 overflow-hidden bg-neutral-950 transition-colors hover:bg-neutral-900"
+								className="group overflow-hidden border border-white/10 bg-neutral-950 transition duration-300 hover:-translate-y-1 hover:border-amber-500/60"
 							>
 								<CatalogPhotoCarousel
 									type="barber"
@@ -68,8 +77,8 @@ export default function Barbers() {
 									name={barber.name}
 									maxPhotos={2}
 								/>
-								<div className="p-6 sm:p-8">
-									<div className="mb-8 flex items-center justify-between">
+								<div className="flex min-h-56 flex-col p-6 sm:p-8">
+									<div className="mb-7 flex items-center justify-between">
 										<span className="font-serif text-sm text-neutral-500">
 											{String(index + 1).padStart(2, '0')}
 										</span>
@@ -85,6 +94,37 @@ export default function Barbers() {
 									<h3 className="font-serif text-2xl font-semibold text-stone-100">
 										{barber.name}
 									</h3>
+									<p className="mt-2 text-sm leading-6 text-stone-300">
+										{barberProfiles[barber.id]?.specialty ??
+											'Atendimento personalizado'}
+									</p>
+									<div className="mt-auto flex flex-wrap items-center gap-3 pt-6">
+										{barberProfiles[barber.id]?.instagramUrl && (
+											<a
+												href={barberProfiles[barber.id].instagramUrl}
+												target="_blank"
+												rel="noreferrer"
+												className="inline-flex min-h-11 items-center gap-2 border border-neutral-700 px-3 text-sm text-stone-200 transition-colors hover:border-amber-500 hover:text-amber-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400"
+											>
+												<FaInstagram size={16} aria-hidden="true" />
+												{barberProfiles[barber.id].instagramLabel}
+												<ArrowUpRight size={14} aria-hidden="true" />
+											</a>
+										)}
+										<button
+											type="button"
+											className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 bg-amber-500 px-4 text-sm font-semibold text-neutral-950 transition-colors hover:bg-amber-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300"
+											onClick={() => {
+												onScheduleBarber(barber.id);
+												document
+													.getElementById('agendamentos')
+													?.scrollIntoView({ behavior: 'smooth' });
+											}}
+										>
+											Agendar com {barber.name}
+											<ArrowUpRight size={16} aria-hidden="true" />
+										</button>
+									</div>
 								</div>
 							</article>
 						))}

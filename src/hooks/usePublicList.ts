@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { apiRequest } from '../lib/api';
 
-export function usePublicList<T>(path: string) {
-	const [items, setItems] = useState<T[]>([]);
+export function usePublicList<T>(path: string, fallbackItems: T[] = []) {
+	const [items, setItems] = useState<T[]>(fallbackItems);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(false);
 
@@ -11,7 +11,7 @@ export function usePublicList<T>(path: string) {
 			apiRequest<T[]>(path, { signal })
 				.then((result) => {
 					if (!signal?.aborted) {
-						setItems(result);
+						setItems(result.length ? result : fallbackItems);
 						setError(false);
 					}
 				})
@@ -21,7 +21,7 @@ export function usePublicList<T>(path: string) {
 				.finally(() => {
 					if (!signal?.aborted) setLoading(false);
 				}),
-		[path]
+		[path, fallbackItems]
 	);
 
 	useEffect(() => {

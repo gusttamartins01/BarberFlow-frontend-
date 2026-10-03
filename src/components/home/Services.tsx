@@ -1,9 +1,15 @@
+import { ArrowUpRight, Clock3 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
+import { defaultServices } from '../../data/defaultCatalog';
 import { apiRequest } from '../../lib/api';
 import type { ApiService } from '../../types/api';
 import CatalogPhotoCarousel from './CatalogPhotoCarousel';
 
-export default function Services() {
+type ServicesProps = {
+	onScheduleService: (serviceId: number) => void;
+};
+
+export default function Services({ onScheduleService }: ServicesProps) {
 	const [services, setServices] = useState<ApiService[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState('');
@@ -13,7 +19,7 @@ export default function Services() {
 			apiRequest<ApiService[]>('/services', { signal })
 				.then((items) => {
 					if (!signal?.aborted) {
-						setServices(items);
+						setServices(items.length ? items : defaultServices);
 						setError('');
 					}
 				})
@@ -49,7 +55,7 @@ export default function Services() {
 		<section
 			id="servicos"
 			aria-labelledby="services-title"
-			className="scroll-mt-20 bg-neutral-950 px-5 py-16 sm:px-8 sm:py-20 lg:scroll-mt-24 lg:px-12 lg:py-24"
+			className="scroll-mt-20 bg-neutral-900 px-5 py-16 sm:px-8 sm:py-20 lg:scroll-mt-24 lg:px-12 lg:py-24"
 		>
 			<div className="mx-auto max-w-screen-2xl">
 				<div className="mb-10 flex flex-col gap-6 sm:mb-14 lg:flex-row lg:items-end lg:justify-between">
@@ -98,11 +104,11 @@ export default function Services() {
 						Nenhum serviço cadastrado no momento.
 					</p>
 				) : (
-					<div className="grid grid-cols-1 gap-px bg-white/10 sm:grid-cols-2 xl:grid-cols-4">
+					<div className="mx-auto grid max-w-6xl grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
 						{services.map((service, index) => (
 							<article
 								key={service.id}
-								className="flex min-h-52 flex-col overflow-hidden bg-neutral-950"
+								className="group flex min-h-full flex-col overflow-hidden border border-white/10 bg-neutral-950 transition duration-300 hover:-translate-y-1 hover:border-amber-500/60"
 							>
 								<CatalogPhotoCarousel
 									type="service"
@@ -110,8 +116,8 @@ export default function Services() {
 									name={service.name}
 									maxPhotos={6}
 								/>
-								<div className="flex flex-1 flex-col p-6 sm:p-7 lg:p-9">
-									<div className="mb-7 flex items-center justify-between gap-4">
+								<div className="flex flex-1 flex-col p-6 sm:p-7">
+									<div className="mb-6 flex items-center justify-between gap-4">
 										<span className="font-serif text-sm text-neutral-500">
 											{String(index + 1).padStart(2, '0')}
 										</span>
@@ -122,9 +128,31 @@ export default function Services() {
 									<h3 className="mb-3 font-serif text-xl font-semibold leading-snug text-stone-100">
 										{service.name}
 									</h3>
-									<p className="text-sm leading-6 text-neutral-400">
+									<p className="mb-6 text-sm leading-6 text-stone-300">
 										{service.description || `${service.duration} minutos`}
 									</p>
+									<div className="mt-auto flex items-center justify-between gap-4 border-t border-white/10 pt-4">
+										<span className="inline-flex items-center gap-2 text-sm text-stone-300">
+											<Clock3
+												size={16}
+												className="text-amber-500"
+												aria-hidden="true"
+											/>
+											{service.duration} min
+										</span>
+										<button
+											type="button"
+											className="inline-flex min-h-10 items-center gap-2 px-2 text-sm font-semibold text-amber-400 transition-colors hover:text-amber-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300"
+											onClick={() => {
+												onScheduleService(service.id);
+												document
+													.getElementById('agendamentos')
+													?.scrollIntoView({ behavior: 'smooth' });
+											}}
+										>
+											Agendar <ArrowUpRight size={16} aria-hidden="true" />
+										</button>
+									</div>
 								</div>
 							</article>
 						))}

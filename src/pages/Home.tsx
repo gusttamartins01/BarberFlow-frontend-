@@ -1,12 +1,29 @@
+import { useState } from 'react';
 import BgHome from '../assets/capa.png';
 import About from '../components/home/About';
 import Barbers from '../components/home/Barbers';
+import BookingForm from '../components/home/BookingForm';
 import Combos from '../components/home/Combos';
 import Contacts from '../components/home/Contacts';
-import Scheduling from '../components/home/Scheduling';
 import Services from '../components/home/Services';
+import RevealOnScroll from '../components/ui/RevealOnScroll';
 
 export default function Home() {
+	const [bookingSelection, setBookingSelection] = useState<{
+		serviceId: string;
+		barberId: string;
+		requestId: number;
+	}>({ serviceId: '', barberId: '', requestId: 0 });
+	const updateBookingSelection = (
+		field: 'serviceId' | 'barberId',
+		value: string
+	) =>
+		setBookingSelection((current) => ({
+			...current,
+			[field]: value,
+			requestId: current.requestId + 1
+		}));
+
 	return (
 		<>
 			<main>
@@ -40,13 +57,36 @@ export default function Home() {
 						</a>
 					</div>
 				</section>
-				<About />
-				<Barbers />
-				<Services />
-				<Combos />
-				<Scheduling />
+				<RevealOnScroll>
+					<About />
+				</RevealOnScroll>
+				<RevealOnScroll>
+					<Barbers
+						onScheduleBarber={(barberId) =>
+							updateBookingSelection('barberId', String(barberId))
+						}
+					/>
+				</RevealOnScroll>
+				<RevealOnScroll>
+					<Services
+						onScheduleService={(serviceId) =>
+							updateBookingSelection('serviceId', String(serviceId))
+						}
+					/>
+				</RevealOnScroll>
+				<RevealOnScroll>
+					<Combos />
+				</RevealOnScroll>
+				<RevealOnScroll>
+					<BookingForm
+						selection={bookingSelection}
+						onSelectionChange={updateBookingSelection}
+					/>
+				</RevealOnScroll>
 			</main>
-			<Contacts />
+			<RevealOnScroll>
+				<Contacts />
+			</RevealOnScroll>
 		</>
 	);
 }

@@ -1,3 +1,4 @@
+@import "react-day-picker/style.css";
 @import "tailwindcss";
 
 html {
@@ -11,6 +12,19 @@ body {
 	color: #e7e5e4;
 }
 
+.scroll-reveal {
+	opacity: 0;
+	transform: translateY(1.25rem);
+	transition:
+		opacity 650ms ease,
+		transform 650ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.scroll-reveal.is-visible {
+	opacity: 1;
+	transform: translateY(0);
+}
+
 ::selection {
 	background: #d97706;
 	color: #111820;
@@ -20,4 +34,67 @@ body {
 	html {
 		scroll-behavior: auto;
 	}
+
+	.scroll-reveal,
+	.scroll-reveal.is-visible {
+		opacity: 1;
+		transform: none;
+		transition: none;
+	}
+}
+
+.booking-calendar {
+	--rdp-accent-color: #f59e0b;
+	--rdp-accent-background-color: rgb(245 158 11 / 16%);
+	--rdp-day-height: 2.75rem;
+	--rdp-day-width: 2.75rem;
+	--rdp-day_button-border-radius: 0;
+	--rdp-day_button-height: 2.5rem;
+	--rdp-day_button-width: 2.5rem;
+	--rdp-nav_button-height: 2.5rem;
+	--rdp-nav_button-width: 2.5rem;
+	color: #f5f5f4;
+}
+
+.booking-calendar .rdp-month_caption {
+	font-size: 0.95rem;
+}
+
+.booking-calendar .rdp-weekday {
+	color: #d6d3d1;
+	font-size: 0.7rem;
+	font-weight: 600;
+	text-transform: uppercase;
+}
+
+.booking-calendar .rdp-day_button {
+	border: 1px solid transparent;
+	font-size: 0.875rem;
+}
+
+.booking-calendar .rdp-day_button:hover:not(:disabled) {
+	border-color: rgb(245 158 11 / 55%);
+	background: rgb(245 158 11 / 12%);
+}
+
+.booking-calendar .rdp-day_button:focus-visible,
+.booking-calendar .rdp-button_next:focus-visible,
+.booking-calendar .rdp-button_previous:focus-visible {
+	outline: 2px solid #fbbf24;
+	outline-offset: 2px;
+}
+
+.booking-calendar .rdp-day.rdp-selected .rdp-day_button {
+	background: #f59e0b;
+	color: #171717;
+	font-weight: 700;
+}
+
+.booking-calendar .rdp-day_button:disabled {
+	color: #737373;
+}
+
+.booking-calendar .rdp-day.rdp-today:not(.rdp-selected) .rdp-day_button {
+	color: #fbbf24;
+	font-weight: 700;
 }

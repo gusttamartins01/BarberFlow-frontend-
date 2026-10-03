@@ -25,7 +25,7 @@ export default function CatalogPhotoCarousel({
 				<img
 					src={photos[activeIndex]}
 					alt={`${name}, foto ${activeIndex + 1}`}
-					className="size-full object-cover"
+					className="size-full object-cover grayscale-[35%] transition duration-500 group-hover:grayscale-0 group-focus-within:grayscale-0"
 				/>
 			) : (
 				<div
@@ -63,12 +63,14 @@ export default function CatalogPhotoCarousel({
 						</button>
 					</>
 				)}
-				<span
-					className="min-w-12 bg-black/80 px-2 py-2 text-center text-xs tabular-nums text-stone-200 backdrop-blur"
-					aria-live="polite"
-				>
-					{photos.length ? activeIndex + 1 : 0}/{maxPhotos}
-				</span>
+				{hasPhotos && (
+					<span
+						className="min-w-12 bg-black/80 px-2 py-2 text-center text-xs tabular-nums text-stone-200 backdrop-blur"
+						aria-live="polite"
+					>
+						{activeIndex + 1}/{photos.length}
+					</span>
+				)}
 			</div>
 		</div>
 	);

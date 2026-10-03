@@ -16,7 +16,8 @@ export const catalogPhotos: Record<
 			'/catalog/service3.png',
 			'/catalog/service4.png',
 			'/catalog/service5.png'
-		]
+		],
+		2: ['/catalog/service2.png']
 	},
 	combo: {
 		1: ['/combos/combo1.png'],

@@ -1,10 +1,14 @@
 import { ArrowUpRight, Scissors } from 'lucide-react';
+import { defaultCombos } from '../../data/defaultCatalog';
 import { usePublicList } from '../../hooks/usePublicList';
 import type { ApiCombo } from '../../types/api';
 import CatalogPhotoCarousel from './CatalogPhotoCarousel';
 
 export default function Combos() {
-	const { items, loading, error, retry } = usePublicList<ApiCombo>('/combos');
+	const { items, loading, error, retry } = usePublicList<ApiCombo>(
+		'/combos',
+		defaultCombos
+	);
 	const formatPrice = (price: number | string) =>
 		new Intl.NumberFormat('pt-BR', {
 			style: 'currency',
@@ -15,7 +19,7 @@ export default function Combos() {
 		<section
 			id="combos"
 			aria-labelledby="combos-title"
-			className="scroll-mt-20 bg-neutral-900 px-5 py-16 text-stone-100 sm:px-8 sm:py-20 lg:scroll-mt-24 lg:px-12 lg:py-24"
+			className="scroll-mt-20 bg-neutral-950 px-5 py-16 text-stone-100 sm:px-8 sm:py-20 lg:scroll-mt-24 lg:px-12 lg:py-24"
 		>
 			<div className="mx-auto max-w-screen-2xl">
 				<div className="mb-10 flex flex-col gap-6 sm:mb-14 lg:flex-row lg:items-end lg:justify-between">
@@ -65,7 +69,7 @@ export default function Combos() {
 						{items.map((combo) => (
 							<article
 								key={combo.id}
-								className="flex min-h-64 flex-col overflow-hidden border border-white/10 bg-neutral-950"
+								className="group flex min-h-64 flex-col overflow-hidden border border-white/10 bg-neutral-900 transition duration-300 hover:-translate-y-1 hover:border-amber-500/60"
 							>
 								<CatalogPhotoCarousel
 									type="combo"

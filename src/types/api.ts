@@ -16,7 +16,7 @@ export type ApiCombo = {
 	name: string;
 	description: string;
 	price: number | string;
-	services: ApiService[];
+	services: Array<Pick<ApiService, 'id' | 'name'>>;
 };
 
 export type ApiBusinessHours = {
