@@ -14,6 +14,11 @@ export default function Barbers({ onScheduleBarber }: BarbersProps) {
 		'/barbers',
 		defaultBarbers
 	);
+	const orderedItems = [...items].sort((first, second) => {
+		const firstPriority = first.name === 'Fabrício Emidio' ? 0 : 1;
+		const secondPriority = second.name === 'Fabrício Emidio' ? 0 : 1;
+		return firstPriority - secondPriority;
+	});
 
 	return (
 		<section
@@ -65,8 +70,8 @@ export default function Barbers({ onScheduleBarber }: BarbersProps) {
 						As informações da equipe estarão disponíveis em breve.
 					</p>
 				) : (
-					<div className="mx-auto grid max-w-5xl gap-4 sm:grid-cols-2">
-						{items.map((barber, index) => (
+					<div className="mx-auto grid max-w-6xl gap-5 sm:grid-cols-2">
+						{orderedItems.map((barber, index) => (
 							<article
 								key={barber.id}
 								className="group overflow-hidden border border-white/10 bg-neutral-950 transition duration-300 hover:-translate-y-1 hover:border-amber-500/60"
@@ -76,8 +81,9 @@ export default function Barbers({ onScheduleBarber }: BarbersProps) {
 									id={barber.id}
 									name={barber.name}
 									maxPhotos={2}
+									layout="compact"
 								/>
-								<div className="flex min-h-56 flex-col p-6 sm:p-8">
+								<div className="flex min-h-56 flex-col p-7 sm:p-9 lg:p-10">
 									<div className="mb-7 flex items-center justify-between">
 										<span className="font-serif text-sm text-neutral-500">
 											{String(index + 1).padStart(2, '0')}

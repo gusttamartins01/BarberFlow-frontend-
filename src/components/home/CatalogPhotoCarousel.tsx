@@ -7,20 +7,29 @@ type CatalogPhotoCarouselProps = {
 	id: number;
 	name: string;
 	maxPhotos: 2 | 6;
+	layout?: 'portrait' | 'compact' | 'horizontal';
+	photoPaths?: string[];
 };
 
 export default function CatalogPhotoCarousel({
 	type,
 	id,
 	name,
-	maxPhotos
+	maxPhotos,
+	layout = 'portrait',
+	photoPaths
 }: CatalogPhotoCarouselProps) {
-	const photos = (catalogPhotos[type][id] ?? []).slice(0, maxPhotos);
+	const photos = (photoPaths ?? catalogPhotos[type][id] ?? []).slice(
+		0,
+		maxPhotos
+	);
 	const [activeIndex, setActiveIndex] = useState(0);
 	const hasPhotos = photos.length > 0;
 
 	return (
-		<div className="relative aspect-4/3 overflow-hidden bg-neutral-900">
+		<div
+			className={`relative overflow-hidden bg-neutral-900 ${layout === 'horizontal' ? 'catalog-photo-horizontal aspect-4/5 lg:w-[42%] lg:shrink-0' : layout === 'compact' ? 'aspect-4/3' : 'aspect-4/5'}`}
+		>
 			{hasPhotos ? (
 				<img
 					src={photos[activeIndex]}

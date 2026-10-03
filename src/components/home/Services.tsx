@@ -104,7 +104,7 @@ export default function Services({ onScheduleService }: ServicesProps) {
 						Nenhum serviço cadastrado no momento.
 					</p>
 				) : (
-					<div className="mx-auto grid max-w-6xl grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+					<div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
 						{services.map((service, index) => (
 							<article
 								key={service.id}
@@ -115,8 +115,13 @@ export default function Services({ onScheduleService }: ServicesProps) {
 									id={service.id}
 									name={service.name}
 									maxPhotos={6}
+									photoPaths={
+										service.name.toLocaleLowerCase('pt-BR').includes('hidrata')
+											? ['/catalog/hidrataçãoimg.jpg']
+											: undefined
+									}
 								/>
-								<div className="flex flex-1 flex-col p-6 sm:p-7">
+								<div className="flex flex-1 flex-col p-7 sm:p-9 lg:p-10">
 									<div className="mb-6 flex items-center justify-between gap-4">
 										<span className="font-serif text-sm text-neutral-500">
 											{String(index + 1).padStart(2, '0')}

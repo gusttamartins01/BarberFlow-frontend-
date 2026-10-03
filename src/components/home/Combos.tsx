@@ -65,26 +65,27 @@ export default function Combos() {
 						Novas combinações estarão disponíveis em breve.
 					</p>
 				) : (
-					<div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+					<div className="mx-auto grid max-w-6xl grid-cols-1 gap-5">
 						{items.map((combo) => (
 							<article
 								key={combo.id}
-								className="group flex min-h-64 flex-col overflow-hidden border border-white/10 bg-neutral-900 transition duration-300 hover:-translate-y-1 hover:border-amber-500/60"
+								className="group flex flex-col overflow-hidden border border-white/10 bg-neutral-900 transition duration-300 hover:-translate-y-1 hover:border-amber-500/60 lg:flex-row"
 							>
 								<CatalogPhotoCarousel
 									type="combo"
 									id={combo.id}
 									name={combo.name}
 									maxPhotos={6}
+									layout="horizontal"
 								/>
-								<div className="flex flex-1 flex-col p-6 sm:p-8">
+								<div className="flex flex-1 flex-col p-7 sm:p-9 lg:p-12">
 									<div className="mb-6 flex items-start justify-between gap-4">
 										<Scissors
 											size={20}
 											className="mt-1 text-amber-500"
 											aria-hidden="true"
 										/>
-										<span className="shrink-0 text-base font-semibold text-amber-400">
+										<span className="shrink-0 text-lg font-semibold text-amber-400 sm:text-xl">
 											{formatPrice(combo.price)}
 										</span>
 									</div>

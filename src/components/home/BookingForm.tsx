@@ -17,7 +17,7 @@ import type {
 import BookingDatePicker from './BookingDatePicker';
 
 const fieldClassName =
-	'min-h-13 w-full appearance-none border border-neutral-700 bg-[#141414] px-4 pr-10 text-sm text-stone-100 accent-amber-500 outline-none transition-colors placeholder:text-neutral-500 focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30 disabled:cursor-not-allowed disabled:opacity-50';
+	'min-h-14 w-full appearance-none border border-neutral-700 bg-[#141414] px-4 pr-10 text-base text-stone-100 accent-amber-500 outline-none transition-colors placeholder:text-neutral-400 focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30 disabled:cursor-not-allowed disabled:opacity-50';
 
 type Selection = { serviceId: string; barberId: string; requestId: number };
 type Props = {
@@ -72,6 +72,10 @@ function priceLabel(price: ApiService['price']) {
 	}).format(Number(price));
 }
 
+function createWhatsAppUrl(message: string) {
+	return `https://wa.me/?text=${encodeURIComponent(message)}`;
+}
+
 function createTimeSlots(
 	hours: ApiBusinessHours | undefined,
 	service: ApiService | undefined,
@@ -121,6 +125,11 @@ export default function BookingForm({ selection, onSelectionChange }: Props) {
 		loading,
 		loadError
 	} = useSchedulingData();
+	const orderedBarbers = [...barbers].sort((first, second) => {
+		const firstPriority = first.name === 'Fabrício Emidio' ? 0 : 1;
+		const secondPriority = second.name === 'Fabrício Emidio' ? 0 : 1;
+		return firstPriority - secondPriority;
+	});
 	const [date, setDate] = useState('');
 	const [slotSelection, setSlotSelection] = useState<{
 		time: string;
@@ -245,9 +254,7 @@ export default function BookingForm({ selection, onSelectionChange }: Props) {
 				`Barbeiro: ${chosenBarber.name}`,
 				`Data: ${dateLabel(date)} às ${startTime}`
 			].join('\n');
-			setWhatsappUrl(
-				`https://wa.me/?text=${encodeURIComponent(confirmationText)}`
-			);
+			setWhatsappUrl(createWhatsAppUrl(confirmationText));
 			setFeedback({
 				success: true,
 				message: 'Solicitação enviada. A equipe confirmará seu horário.'
@@ -258,13 +265,15 @@ export default function BookingForm({ selection, onSelectionChange }: Props) {
 			setPhone('');
 			onSelectionChange('serviceId', '');
 			onSelectionChange('barberId', '');
-		} catch (error) {
+		} catch {
+			setWhatsappUrl(
+				createWhatsAppUrl(
+					'Olá! Não consegui concluir meu agendamento pelo site. Pode me ajudar pelo WhatsApp?'
+				)
+			);
 			setFeedback({
 				success: false,
-				message:
-					error instanceof Error
-						? error.message
-						: 'Não foi possível concluir a reserva.'
+				message: 'Não conseguimos enviar agora. Tente pelo WhatsApp.'
 			});
 		} finally {
 			setSubmitting(false);
@@ -288,7 +297,7 @@ export default function BookingForm({ selection, onSelectionChange }: Props) {
 			aria-labelledby="booking-title"
 			className="scroll-mt-20 bg-neutral-900 px-5 py-16 sm:px-8 sm:py-20 lg:scroll-mt-24 lg:px-12 lg:py-24"
 		>
-			<div className="mx-auto max-w-6xl">
+			<div className="mx-auto max-w-screen-2xl">
 				<header className="mb-10 sm:mb-14">
 					<p className="mb-6 flex items-center gap-3 text-xs font-medium uppercase tracking-[0.2em] text-amber-500">
 						<span
@@ -307,22 +316,14 @@ export default function BookingForm({ selection, onSelectionChange }: Props) {
 						Preencha o formulário para solicitar sua reserva.
 					</p>
 				</header>
-				{loadError && (
-					<p
-						className="mb-6 border border-red-900/70 bg-red-950/30 p-4 text-sm leading-6 text-red-200"
-						role="alert"
-					>
-						Não foi possível carregar as informações: {loadError}
-					</p>
-				)}
-				<div className="grid gap-8 lg:grid-cols-[minmax(0,1.55fr)_minmax(17rem,0.85fr)] lg:items-start">
+				<div className="grid gap-8 lg:grid-cols-[minmax(0,1.6fr)_minmax(20rem,0.8fr)] lg:gap-10 lg:items-start">
 					<form
 						className="grid grid-cols-1 gap-x-4 gap-y-5 sm:grid-cols-2 sm:gap-x-5 sm:gap-y-6"
 						onSubmit={handleSubmit}
 					>
 						<div className="flex flex-col gap-2">
 							<label
-								className="text-xs font-medium uppercase tracking-[0.14em] text-stone-300"
+								className="text-sm font-semibold uppercase tracking-[0.12em] text-stone-200"
 								htmlFor="customer-name"
 							>
 								Nome completo
@@ -339,7 +340,7 @@ export default function BookingForm({ selection, onSelectionChange }: Props) {
 						</div>
 						<div className="flex flex-col gap-2">
 							<label
-								className="text-xs font-medium uppercase tracking-[0.14em] text-stone-300"
+								className="text-sm font-semibold uppercase tracking-[0.12em] text-stone-200"
 								htmlFor="customer-phone"
 							>
 								Telefone / WhatsApp
@@ -359,7 +360,7 @@ export default function BookingForm({ selection, onSelectionChange }: Props) {
 						</div>
 						<div className="flex flex-col gap-2">
 							<label
-								className="text-xs font-medium uppercase tracking-[0.14em] text-stone-300"
+								className="text-sm font-semibold uppercase tracking-[0.12em] text-stone-200"
 								htmlFor="service"
 							>
 								Serviço
@@ -395,7 +396,7 @@ export default function BookingForm({ selection, onSelectionChange }: Props) {
 						</div>
 						<div className="flex flex-col gap-2">
 							<label
-								className="text-xs font-medium uppercase tracking-[0.14em] text-stone-300"
+								className="text-sm font-semibold uppercase tracking-[0.12em] text-stone-200"
 								htmlFor="barber"
 							>
 								Barbeiro
@@ -415,7 +416,7 @@ export default function BookingForm({ selection, onSelectionChange }: Props) {
 											? 'Carregando barbeiros...'
 											: 'Selecione um barbeiro'}
 									</option>
-									{barbers.map((item) => (
+									{orderedBarbers.map((item) => (
 										<option key={item.id} value={item.id}>
 											{item.name}
 										</option>
@@ -474,7 +475,7 @@ export default function BookingForm({ selection, onSelectionChange }: Props) {
 									{timeSlots.map(({ time, unavailableReason }) => (
 										<button
 											aria-pressed={startTime === time}
-											className={`min-h-11 border px-2 text-sm font-medium tabular-nums transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300 ${startTime === time ? 'border-amber-400 bg-amber-500 text-neutral-950' : unavailableReason ? 'cursor-not-allowed border-neutral-800 bg-neutral-950 text-neutral-500 line-through' : 'border-neutral-700 bg-neutral-950 text-stone-200 hover:border-amber-500 hover:text-amber-300'}`}
+											className={`min-h-12 border px-2 text-sm font-semibold tabular-nums transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300 ${startTime === time ? 'border-amber-300 bg-amber-400 text-neutral-950 ring-2 ring-amber-300 ring-offset-2 ring-offset-neutral-900' : unavailableReason ? 'cursor-not-allowed border-neutral-800 bg-neutral-950 text-neutral-500 line-through' : 'border-neutral-700 bg-neutral-950 text-stone-100 hover:border-amber-500 hover:text-amber-300'}`}
 											disabled={Boolean(unavailableReason)}
 											key={time}
 											title={unavailableReason || undefined}
@@ -589,7 +590,7 @@ export default function BookingForm({ selection, onSelectionChange }: Props) {
 							)}
 							{feedback.message}
 						</p>
-						{feedback.success && whatsappUrl && (
+						{whatsappUrl && (
 							<a
 								className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 bg-emerald-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-emerald-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300"
 								href={whatsappUrl}
@@ -597,7 +598,9 @@ export default function BookingForm({ selection, onSelectionChange }: Props) {
 								target="_blank"
 							>
 								<MessageCircle size={17} aria-hidden="true" />
-								Confirmar pelo WhatsApp
+								{feedback.success
+									? 'Confirmar pelo WhatsApp'
+									: 'Tentar pelo WhatsApp'}
 								<ArrowUpRight size={15} aria-hidden="true" />
 							</a>
 						)}

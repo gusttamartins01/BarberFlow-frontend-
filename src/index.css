@@ -98,3 +98,14 @@ body {
 	color: #fbbf24;
 	font-weight: 700;
 }
+
+.catalog-photo-horizontal {
+	aspect-ratio: 4 / 5;
+}
+
+@media (min-width: 64rem) {
+	.catalog-photo-horizontal {
+		aspect-ratio: auto;
+		min-height: 24rem;
+	}
+}
