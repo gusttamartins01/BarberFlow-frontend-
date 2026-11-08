@@ -49,7 +49,7 @@ export default function Navbar() {
 		<header
 			className={`fixed top-0 z-50 w-full border-b backdrop-blur-xl transition-all duration-300 ${scrolled ? 'border-neutral-700 bg-black/85 shadow-lg shadow-black/30' : 'border-neutral-800 bg-black/95'}`}
 		>
-			<div className="mx-auto flex h-18 w-full max-w-screen-2xl items-center justify-between px-4 sm:px-6 lg:h-20 lg:px-12">
+			<div className="mx-auto flex h-18 w-full max-w-screen-2xl items-center justify-between px-4 sm:px-6  lg:px-12">
 				<button
 					type="button"
 					className="flex shrink-0 items-center transition-opacity hover:opacity-80"
@@ -58,8 +58,8 @@ export default function Navbar() {
 					<img
 						src={Logo}
 						alt="Logo Barbearia Sr.Emidio"
-						width={64}
-						height={64}
+						width={50}
+						height={50}
 						className="object-contain"
 					/>
 				</button>
