@@ -1,4 +1,9 @@
-import type { ApiBarber, ApiCombo, ApiService } from '../types/api';
+import type {
+	ApiBarber,
+	ApiBusinessHours,
+	ApiCombo,
+	ApiService
+} from '../types/api';
 
 export const defaultBarbers: ApiBarber[] = [
 	{ id: 1, name: 'Fabrício Emidio' },
@@ -33,6 +38,17 @@ export const defaultServices: ApiService[] = [
 		duration: 30
 	}
 ];
+
+export const defaultBusinessHours: ApiBusinessHours[] = Array.from(
+	{ length: 7 },
+	(_, dayOfWeek) => ({
+		id: dayOfWeek + 1,
+		dayOfWeek,
+		openTime: '09:00',
+		closeTime: '19:00',
+		isOpen: dayOfWeek !== 0
+	})
+);
 
 export const defaultCombos: ApiCombo[] = [
 	{

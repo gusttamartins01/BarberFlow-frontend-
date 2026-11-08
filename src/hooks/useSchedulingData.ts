@@ -1,4 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import {
+	defaultBarbers,
+	defaultBusinessHours,
+	defaultServices
+} from '../data/defaultCatalog';
 import { apiRequest } from '../lib/api';
 import type {
 	ApiAppointment,
@@ -7,56 +12,88 @@ import type {
 	ApiService
 } from '../types/api';
 
-function getErrorMessage(error: unknown) {
-	return error instanceof Error
-		? error.message
-		: 'Não foi possível carregar as informações.';
-}
-
 export function useSchedulingData() {
 	const [services, setServices] = useState<ApiService[]>([]);
 	const [barbers, setBarbers] = useState<ApiBarber[]>([]);
 	const [hours, setHours] = useState<ApiBusinessHours[]>([]);
 	const [appointments, setAppointments] = useState<ApiAppointment[]>([]);
+	const [appointmentsLoaded, setAppointmentsLoaded] = useState(false);
 	const [loading, setLoading] = useState(true);
 	const [loadError, setLoadError] = useState('');
+	const [retryCount, setRetryCount] = useState(0);
+	const retryCountRef = useRef(0);
 
 	useEffect(() => {
 		const controller = new AbortController();
 		const options = { signal: controller.signal };
 
-		Promise.all([
+		Promise.allSettled([
 			apiRequest<ApiService[]>('/services', options),
 			apiRequest<ApiBarber[]>('/barbers', options),
 			apiRequest<ApiBusinessHours[]>('/business-hours', options),
 			apiRequest<ApiAppointment[]>('/appointments', options)
 		])
-			.then(([serviceItems, barberItems, businessHours, bookingItems]) => {
-				if (controller.signal.aborted) return;
-				setServices(serviceItems);
-				setBarbers(barberItems);
-				setHours(businessHours);
-				setAppointments(bookingItems);
-			})
-			.catch((error: unknown) => {
-				if (!controller.signal.aborted) {
-					setLoadError(getErrorMessage(error));
+			.then(([serviceResult, barberResult, hoursResult, appointmentResult]) => {
+				if (controller.signal.aborted || retryCount !== retryCountRef.current)
+					return;
+
+				const failures: string[] = [];
+				if (serviceResult.status === 'fulfilled') {
+					setServices(serviceResult.value);
+				} else {
+					setServices(defaultServices);
+					failures.push('serviços');
+				}
+				if (barberResult.status === 'fulfilled') {
+					setBarbers(barberResult.value);
+				} else {
+					setBarbers(defaultBarbers);
+					failures.push('barbeiros');
+				}
+				if (hoursResult.status === 'fulfilled') {
+					setHours(hoursResult.value);
+				} else {
+					setHours(defaultBusinessHours);
+					failures.push('horários de funcionamento');
+				}
+				if (appointmentResult.status === 'fulfilled') {
+					setAppointments(appointmentResult.value);
+					setAppointmentsLoaded(true);
+				} else {
+					setAppointments([]);
+					setAppointmentsLoaded(false);
+					failures.push('reservas existentes');
+				}
+
+				if (failures.length) {
+					setLoadError(
+						`Não foi possível carregar ${failures.join(', ')} da API. Alguns dados provisórios podem ser exibidos; a reserva só será confirmada após o envio.`
+					);
 				}
 			})
 			.finally(() => {
-				if (!controller.signal.aborted) setLoading(false);
+				if (!controller.signal.aborted && retryCount === retryCountRef.current)
+					setLoading(false);
 			});
 
 		return () => controller.abort();
-	}, []);
+	}, [retryCount]);
 
 	return {
 		services,
 		barbers,
 		hours,
 		appointments,
+		appointmentsLoaded,
 		setAppointments,
 		loading,
-		loadError
+		loadError,
+		retry: () => {
+			retryCountRef.current += 1;
+			setLoading(true);
+			setLoadError('');
+			setAppointmentsLoaded(false);
+			setRetryCount(retryCountRef.current);
+		}
 	};
 }

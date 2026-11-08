@@ -121,9 +121,11 @@ export default function BookingForm({ selection, onSelectionChange }: Props) {
 		barbers,
 		hours,
 		appointments,
+		appointmentsLoaded,
 		setAppointments,
 		loading,
-		loadError
+		loadError,
+		retry
 	} = useSchedulingData();
 	const orderedBarbers = [...barbers].sort((first, second) => {
 		const firstPriority = first.name === 'Fabrício Emidio' ? 0 : 1;
@@ -135,6 +137,7 @@ export default function BookingForm({ selection, onSelectionChange }: Props) {
 		time: string;
 		requestId: number;
 	} | null>(null);
+	const [customerName, setCustomerName] = useState('');
 	const [phone, setPhone] = useState('');
 	const [submitting, setSubmitting] = useState(false);
 	const [savedCustomer, setSavedCustomer] = useState<ApiCustomer | null>(null);
@@ -151,13 +154,9 @@ export default function BookingForm({ selection, onSelectionChange }: Props) {
 	const businessHours = date
 		? hours.find((item) => item.dayOfWeek === weekday(date))
 		: undefined;
-	const timeSlots = createTimeSlots(
-		businessHours,
-		service,
-		date,
-		barberId,
-		appointments
-	);
+	const timeSlots = appointmentsLoaded
+		? createTimeSlots(businessHours, service, date, barberId, appointments)
+		: [];
 
 	const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
@@ -260,20 +259,28 @@ export default function BookingForm({ selection, onSelectionChange }: Props) {
 				message: 'Solicitação enviada. A equipe confirmará seu horário.'
 			});
 			form.reset();
+			setCustomerName('');
 			setDate('');
 			setSlotSelection(null);
 			setPhone('');
 			onSelectionChange('serviceId', '');
 			onSelectionChange('barberId', '');
-		} catch {
-			setWhatsappUrl(
-				createWhatsAppUrl(
-					'Olá! Não consegui concluir meu agendamento pelo site. Pode me ajudar pelo WhatsApp?'
-				)
-			);
+		} catch (error: unknown) {
+			const requestMessage = [
+				'Olá! Não consegui concluir meu agendamento pelo site. Pode me ajudar?',
+				`Nome: ${name}`,
+				`Telefone: ${phone}`,
+				`Serviço: ${chosenService.name}`,
+				`Barbeiro: ${chosenBarber.name}`,
+				`Data: ${dateLabel(date)} às ${startTime}`
+			].join('\n');
+			setWhatsappUrl(createWhatsAppUrl(requestMessage));
 			setFeedback({
 				success: false,
-				message: 'Não conseguimos enviar agora. Tente pelo WhatsApp.'
+				message:
+					error instanceof Error
+						? `Não foi possível registrar a reserva: ${error.message}`
+						: 'Não foi possível registrar a reserva. Envie a solicitação pelo WhatsApp.'
 			});
 		} finally {
 			setSubmitting(false);
@@ -316,6 +323,21 @@ export default function BookingForm({ selection, onSelectionChange }: Props) {
 						Preencha o formulário para solicitar sua reserva.
 					</p>
 				</header>
+				{loadError && (
+					<div
+						className="mb-6 flex flex-col gap-3 border border-amber-700/60 bg-amber-950/30 p-4 text-sm text-amber-100 sm:flex-row sm:items-center sm:justify-between"
+						role="alert"
+					>
+						<p className="leading-6">{loadError}</p>
+						<button
+							className="min-h-10 shrink-0 self-start font-semibold text-amber-300 underline underline-offset-4 hover:text-amber-200 sm:self-auto"
+							onClick={retry}
+							type="button"
+						>
+							Tentar carregar novamente
+						</button>
+					</div>
+				)}
 				<div className="grid gap-8 lg:grid-cols-[minmax(0,1.6fr)_minmax(20rem,0.8fr)] lg:gap-10 lg:items-start">
 					<form
 						className="grid grid-cols-1 gap-x-4 gap-y-5 sm:grid-cols-2 sm:gap-x-5 sm:gap-y-6"
@@ -336,6 +358,8 @@ export default function BookingForm({ selection, onSelectionChange }: Props) {
 								placeholder="Ex: João Silva"
 								required
 								type="text"
+								value={customerName}
+								onChange={(event) => setCustomerName(event.target.value)}
 							/>
 						</div>
 						<div className="flex flex-col gap-2">
@@ -378,7 +402,9 @@ export default function BookingForm({ selection, onSelectionChange }: Props) {
 									<option disabled value="">
 										{loading
 											? 'Carregando serviços...'
-											: 'Selecione um serviço'}
+											: services.length
+												? 'Selecione um serviço'
+												: 'Nenhum serviço disponível'}
 									</option>
 									{services.map((item) => (
 										<option key={item.id} value={item.id}>
@@ -414,7 +440,9 @@ export default function BookingForm({ selection, onSelectionChange }: Props) {
 									<option disabled value="">
 										{loading
 											? 'Carregando barbeiros...'
-											: 'Selecione um barbeiro'}
+											: barbers.length
+												? 'Selecione um barbeiro'
+												: 'Nenhum barbeiro disponível'}
 									</option>
 									{orderedBarbers.map((item) => (
 										<option key={item.id} value={item.id}>
@@ -460,6 +488,42 @@ export default function BookingForm({ selection, onSelectionChange }: Props) {
 									{service.duration} min
 								</p>
 							)}
+							{date &&
+								businessHours?.isOpen &&
+								service &&
+								barberId &&
+								!appointmentsLoaded &&
+								!loading && (
+									<div
+										className="flex flex-col items-start gap-3 border border-amber-700/60 bg-amber-950/30 p-4 text-sm text-amber-100 sm:flex-row sm:items-center sm:justify-between"
+										role="alert"
+									>
+										<p className="leading-6">
+											Não foi possível verificar os horários já reservados. Para
+											evitar oferecer um horário ocupado, solicite a confirmação
+											pelo WhatsApp.
+										</p>
+										<a
+											className="inline-flex min-h-10 shrink-0 items-center gap-2 font-semibold text-amber-300 underline underline-offset-4 hover:text-amber-200"
+											href={createWhatsAppUrl(
+												[
+													'Olá! Gostaria de verificar a disponibilidade para um agendamento.',
+													`Nome: ${customerName || 'não informado'}`,
+													`Telefone: ${phone || 'não informado'}`,
+													`Serviço: ${service.name}`,
+													`Barbeiro: ${barber?.name ?? 'não selecionado'}`,
+													`Data desejada: ${dateLabel(date)}`,
+													'Por favor, me informem os horários disponíveis.'
+												].join('\n')
+											)}
+											rel="noreferrer"
+											target="_blank"
+										>
+											<MessageCircle size={16} aria-hidden="true" />
+											Pedir confirmação
+										</a>
+									</div>
+								)}
 							{date && !loading && !businessHours?.isOpen && (
 								<p className="text-sm leading-6 text-amber-300" role="status">
 									A barbearia não abre neste dia.
@@ -497,6 +561,7 @@ export default function BookingForm({ selection, onSelectionChange }: Props) {
 								businessHours?.isOpen &&
 								service &&
 								barberId &&
+								appointmentsLoaded &&
 								timeSlots.length === 0 && (
 									<p className="text-sm leading-6 text-stone-300">
 										Não há horários disponíveis para este serviço neste dia.
@@ -508,7 +573,7 @@ export default function BookingForm({ selection, onSelectionChange }: Props) {
 								className="inline-flex min-h-13 w-full items-center justify-center bg-amber-500 px-8 text-sm font-semibold uppercase tracking-[0.12em] text-[#111820] transition-colors hover:bg-amber-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:min-w-60"
 								disabled={
 									loading ||
-									Boolean(loadError) ||
+									!appointmentsLoaded ||
 									submitting ||
 									!services.length ||
 									!barbers.length

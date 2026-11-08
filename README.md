@@ -10,6 +10,8 @@ Inicie o backend com `PORT=3333`, `DATABASE_URL` configurada para o PostgreSQL e
 
 As telas consomem `GET /services`, `GET /barbers`, `GET /business-hours` e `GET /appointments`. Ao solicitar uma reserva, o frontend cria o cliente em `POST /customers` e então o agendamento em `POST /appointments`.
 
+Se uma leitura falhar, o formulário informa quais dados não foram carregados e pode exibir serviços, barbeiros e expediente provisórios. Os horários só são oferecidos quando a lista de reservas foi carregada com sucesso; sem ela, o formulário evita sugerir vagas possivelmente ocupadas e oferece uma solicitação pelo WhatsApp. Para registrar e confirmar reservas pelo site, a API e o banco de dados precisam estar disponíveis.
+
 Em produção, configure `VITE_API_BASE_URL` para uma URL acessível pelo navegador e disponibilize a API na mesma origem por um reverse proxy, ou habilite CORS no backend para a origem do frontend. O proxy definido no Vite vale apenas para desenvolvimento.
 
 ## Scripts
