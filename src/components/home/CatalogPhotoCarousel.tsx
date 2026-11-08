@@ -34,7 +34,7 @@ export default function CatalogPhotoCarousel({
 				<img
 					src={photos[activeIndex]}
 					alt={`${name}, foto ${activeIndex + 1}`}
-					className="size-full object-cover grayscale-[35%] transition duration-500 group-hover:grayscale-0 group-focus-within:grayscale-0"
+					className="size-full object-cover grayscale-35 transition duration-500 group-hover:grayscale-0 group-focus-within:grayscale-0"
 				/>
 			) : (
 				<div
